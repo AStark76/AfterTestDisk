@@ -1,4 +1,5 @@
-﻿using BildWiederhersteller.Model;
+﻿using BildWiederhersteller.Helper;
+using BildWiederhersteller.Model;
 using Serilog;
 using Spectre.Console;
 using System;
@@ -9,12 +10,17 @@ using System.Threading.Tasks;
 
 namespace BildWiederhersteller.Processors
 {
+    /// <summary>
+    /// 
+    /// </summary>
     internal abstract class FileProcessor
     {
         protected Queue<string> _fileList = new Queue<string>();
         protected HashSet<string> _fileExtensions = new HashSet<string>();
         protected ProcessorParam _parameters;
-        List<FileInfo> _pendingFiles = new();
+        
+        List<string> _relevantFolders = new();
+        List<IFileInfo> _pendingFiles = new();
         int _batchSize = 100;
 
 
@@ -29,21 +35,83 @@ namespace BildWiederhersteller.Processors
         /// <summary>Processes this instance.</summary>
         private void Process()
         {
+            CreateBaseDestination();
+            GatherFolders();
             GatherFiles();
             CreateFolder(_parameters.Destination);
-            LoopFiles();
-            LoopFiles();
+        }
+
+        void CreateBaseDestination()
+        {
+            FolderCreator.CreateFolderSafe( _parameters.Destination );
+        }
+       
+        /// <summary>Gathers the folders.</summary>
+        protected void GatherFolders()
+        {
+            _relevantFolders.Clear();
+
+            foreach (var dir in Directory.EnumerateDirectories(_parameters.RootPath, "*", SearchOption.AllDirectories))
+            {
+                bool containsRelevantFile = Directory.EnumerateFiles(dir, "*.*", SearchOption.TopDirectoryOnly)
+                    .Any(file => _fileExtensions.Contains(Path.GetExtension(file).ToLowerInvariant()));
+
+                if (containsRelevantFile)
+                {
+                    _relevantFolders.Add(dir);
+                }
+            }
+
+            Log.Information($"Gefundene relevante Ordner: {_relevantFolders.Count}");
+        }
+
+
+        /// <summary>Gathers the files.</summary>
+        void GatherFiles()
+        {
+            _fileList.Clear();
+
+            foreach (var folder in _relevantFolders)
+            {
+                foreach (var file in Directory.EnumerateFiles(folder, "*.*", SearchOption.TopDirectoryOnly)
+                             .Where(f => _fileExtensions.Contains(Path.GetExtension(f).ToLowerInvariant())))
+                {
+                    _fileList.Enqueue(file);
+                }
+
+                LoopFiles();
+            }
+
+            Log.Information($"Gesammelte Dateien: {_fileList.Count}");
+        }
+
+
+        /// <summary>Creates the folder.</summary>
+        /// <param name="folder">The folder.</param>
+        void CreateFolder(string folder)
+        {
+            Directory.CreateDirectory(folder);
         }
 
         /// <summary>Loops the files.</summary>
-        private void LoopFiles()
+        void LoopFiles()
         {
 
-            while (0 < _fileList.Count)
+            while (_fileList.Count > 0)
             {
-                AnalyzeFile(_fileList.Peek());
+                var path = _fileList.Dequeue();       // ✅ Speicher entlasten
+                AnalyzeFile(path);                    // ✅ Metadaten extrahieren
             }
 
+            if (_pendingFiles.Count > 0)
+            {
+                var batch = _pendingFiles.ToList();
+                _pendingFiles.Clear();
+
+
+                if (null != batch)
+                    StartCopyTask(batch!);
+            }
         }
 
         /// <summary>Analyzes the file.</summary>
@@ -63,33 +131,55 @@ namespace BildWiederhersteller.Processors
             }
         }
 
-        void StartCopyTask(List<FileInfo> batch)
+        /// <summary>
+        /// Starts the copy task.
+        /// </summary>
+        /// <param name="batch">The batch.</param>
+        protected void StartCopyTask(List<IFileInfo> batch)
         {
-            throw new NotImplementedException();
+            foreach (var file in batch)
+            {
+                try
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(file.TargetPath)!);
+                    File.Copy(file.SourcePath, file.TargetPath, overwrite: true);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Fehler beim Kopieren von {file.SourcePath} → {file.TargetPath}: {ex.Message}");
+                }
+            }
         }
 
-        protected abstract FileInfo ExtractFileInfo(string path);
 
-        /// <summary>Gathers the files.</summary>
-        void GatherFiles()
-        {
-            _fileList = new Queue<string>(
-                Directory.EnumerateFiles(_parameters.RootPath, "*.*", SearchOption.AllDirectories)
-                    .Where(file => _fileExtensions.Contains(Path.GetExtension(file)))
-            );
-        }
-
-        /// <summary>Creates the folder.</summary>
-        /// <param name="folder">The folder.</param>
-        void CreateFolder(string folder)
-        {
-            Directory.CreateDirectory(folder);
-        }
-
+        /// <summary>
+        /// Sets the parameter.
+        /// </summary>
+        /// <param name="param">The parameter.</param>
+        /// <returns></returns>
         void SetParameter(ProcessorParam param)
         {
             _parameters = param;
         }
+
+        /// <summary>
+        /// Extracts the file information.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns></returns>
+        /// <exception cref="NotSupportedException">$"Kein Extraktor für {ext}</exception>
+        protected virtual IFileInfo ExtractFileInfo(string path)
+        {
+            var ext = Path.GetExtension(path);
+            var extractor = FileInfoExtractorRegistry.GetExtractor(ext);
+
+            if (extractor is null)
+                throw new NotSupportedException($"Kein Extraktor für {ext}");
+
+            return extractor.ExtractInfo(path, _parameters);
+        }
+
+
 
         #region STATIC
 
@@ -121,7 +211,7 @@ namespace BildWiederhersteller.Processors
                 case "jpeg":
                     return new ImageProcessor();
                 case "mp3":
-                    return new Mp3Processor();
+                    return new AudioProcessor();
                 default:
                     return new UnsupportedFileType(fileType);
             }

@@ -39,6 +39,4 @@ namespace BildWiederhersteller.Model
             return Path.Combine("Images", "cr2", Path.GetFileName(SourcePath));
         }
     }
-
-
 }

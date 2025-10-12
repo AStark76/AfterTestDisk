@@ -1,15 +1,24 @@
 ﻿using BildWiederhersteller.Helper;
+using BildWiederhersteller.Model;
 using MetadataExtractor;
+using MetadataExtractor.Formats.Exif;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static BildWiederhersteller.Helper.ImageFileInfoExtractor;
 
 namespace BildWiederhersteller.Processors
 {
     internal class ImageProcessor : FileProcessor
     {
+        HashSet<string> _rawExtensions = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ".cr2", ".nef", ".arw", ".dng"
+        };
+
         public ImageProcessor()
         {
             _fileExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -18,19 +27,11 @@ namespace BildWiederhersteller.Processors
                 ,"jpeg"
                 ,"png"
                 ,"tiff"
-                ,"tif"
+                ,"bmp"
+                ,"cr2"
+                ,"nef"
+                ,"arw"
             };
-        }
-
-        protected override FileInfo ExtractFileInfo(string path)
-        {
-            var ext = Path.GetExtension(path);
-            var extractor = FileInfoExtractorRegistry.GetExtractor(ext);
-
-            if (extractor is null)
-                throw new NotSupportedException($"Kein Extraktor für {ext}");
-
-            return extractor.Extract(path);
         }
     }
 }
