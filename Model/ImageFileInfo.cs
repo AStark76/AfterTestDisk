@@ -1,8 +1,10 @@
-﻿using System;
+﻿using BildWiederhersteller.Klassifikation;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static BildWiederhersteller.Helper.Literals;
 
 namespace BildWiederhersteller.Model
 {
@@ -10,35 +12,29 @@ namespace BildWiederhersteller.Model
     {
         public string TargetPath => GetTargetPath();
 
-        /// <summary>
-        /// Gets the target path.
-        /// </summary>
-        /// <returns></returns>
+        readonly FileTypeGroup _group = FileTypeGroup.Get(IMAGE);
+
+
         private string GetTargetPath()
         {
             var extension = Path.GetExtension(SourcePath).ToLowerInvariant();
 
-            return extension switch
+            if (_group.Subtypes.Contains(extension))
             {
-                ".cr2" => GetCr2TargetPath(),
-                _ => Path.Combine("Images", OriginalTimestamp?.ToString("yyyy-MM-dd") ?? "Unknown", Path.GetFileName(SourcePath))
-            };
+                return GetSubtypeTargetPath(extension);
+            }
+
+            return Path.Combine(IMAGES, OriginalTimestamp?.ToString("yyyy"), OriginalTimestamp?.ToString("MM-dd") ?? "Unknown", Path.GetFileName(SourcePath));
         }
 
-        /// <summary>
-        /// Gets the CR2 target path.
-        /// </summary>
-        /// <returns></returns>
-        string GetCr2TargetPath()
+        private string GetSubtypeTargetPath(string extension)
         {
-            var dateFolder = OriginalTimestamp?.ToString("yyyy-MM-dd") ?? "Unknown";
-            var baseFolder = Path.Combine("Images", dateFolder);
-            var subtypeFolder = Path.Combine(baseFolder, "cr2");
+            var dateFolder = OriginalTimestamp?.ToString("MM-dd") ?? "Unknown";
+            var subtypeFolder = Path.Combine(IMAGES, OriginalTimestamp?.ToString("yyyy"), dateFolder, extension.TrimStart('.'));
 
             Directory.CreateDirectory(subtypeFolder);
 
             return Path.Combine(subtypeFolder, Path.GetFileName(SourcePath));
         }
-
     }
 }

@@ -52,9 +52,9 @@ namespace BildWiederhersteller.Processors
 
         void CreateBaseDestination()
         {
-            FolderCreator.CreateFolderSafe( _parameters.Destination );
+            FolderCreator.CreateFolderSafe(_parameters.Destination);
         }
-       
+
         /// <summary>Gathers the folders.</summary>
         protected void GatherFolders()
         {
@@ -128,6 +128,11 @@ namespace BildWiederhersteller.Processors
         void AnalyzeFile(string path)
         {
             var info = ExtractFileInfo(path); // z. B. EXIF, Zielpfad etc.
+
+
+            if (null == info)
+                return;
+
             lock (_pendingFiles)
             {
                 _pendingFiles.Add(info);
@@ -135,10 +140,38 @@ namespace BildWiederhersteller.Processors
                 {
                     var batch = _pendingFiles.Take(_batchSize).ToList();
                     _pendingFiles.RemoveRange(0, _batchSize);
+                    Log.Information($"Batch gestartet mit {_batchSize} Dateien");
                     StartCopyTask(batch);
                 }
             }
         }
+
+        /// <summary>
+        /// Extracts the file information.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns></returns>
+        /// <exception cref="NotSupportedException">$"Kein Extraktor für {ext}</exception>
+        protected virtual IFileInfo ExtractFileInfo(string path)
+        {
+            var ext = Path.GetExtension(path)?.ToLowerInvariant();
+            if (string.IsNullOrWhiteSpace(ext))
+            {
+                Log.Error($"Datei ohne gültige Endung: {path}");
+                return null;
+            }
+
+            var extractor = FileInfoExtractorRegistry.GetExtractor(ext);
+
+            if (extractor is null)
+            {
+                Log.Error($"Kein Extraktor für {ext}");
+                return null;
+            }
+
+            return extractor.ExtractInfo(path, _parameters);
+        }
+
 
         /// <summary>
         /// Starts the copy task.
@@ -170,25 +203,6 @@ namespace BildWiederhersteller.Processors
         {
             _parameters = param;
         }
-
-        /// <summary>
-        /// Extracts the file information.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <returns></returns>
-        /// <exception cref="NotSupportedException">$"Kein Extraktor für {ext}</exception>
-        protected virtual IFileInfo ExtractFileInfo(string path)
-        {
-            var ext = Path.GetExtension(path);
-            var extractor = FileInfoExtractorRegistry.GetExtractor(ext);
-
-            if (extractor is null)
-                throw new NotSupportedException($"Kein Extraktor für {ext}");
-
-            return extractor.ExtractInfo(path, _parameters);
-        }
-
-
 
         #region STATIC
 

@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Serilog;
 using Spectre.Console;
+using static BildWiederhersteller.Helper.Literals;
 
 namespace BildWiederhersteller
 {
@@ -43,7 +44,7 @@ namespace BildWiederhersteller
             return AnsiConsole.Prompt(
                             new SelectionPrompt<string>()
                                 .Title("Wähle eine [green]Dateikategorie[/]:")
-                                .AddChoices(new[] { "Image", "Audio", "Office", "Beenden" }));
+                                .AddChoices(new[] { Image, Audio, Document, END }));
         }
 
         static void SetParameters(string[] args, out string source, out string destination)
