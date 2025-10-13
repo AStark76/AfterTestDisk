@@ -19,16 +19,44 @@ namespace BildWiederhersteller
 
             if (args.Length < 2)
             {
-                Log.Error("Bitte Quell- und Zielverzeichnis als Parameter angeben.");
-                AnsiConsole.MarkupLine("[bold red]Fehler:[/] Quell- und Zielverzeichnis fehlen.");
-                AnsiConsole.MarkupLine($"[yellow]Verwendung:[/] {Process.GetCurrentProcess().MainModule.FileName} [blue]<Quellpfad>[/] [blue]<Zielpfad>[/]");
+                ShowErrorMessage();
 
                 return;
             }
 
-            var processor = new FileProcessRunner(args[0], args[1], args[2]);
-            processor.Run();
+            string source, destination;
+            SetParameters(args, out source, out destination);
+            string category = BuildMenu();
+
+            if (category == "Beenden")
+            {
+                AnsiConsole.MarkupLine("[grey]Programm beendet.[/]");
+                return;
+            }
+
+            var runner = new FileProcessRunner(source, destination, category);
+            runner.Run();
         }
 
+        static string BuildMenu()
+        {
+            return AnsiConsole.Prompt(
+                            new SelectionPrompt<string>()
+                                .Title("Wähle eine [green]Dateikategorie[/]:")
+                                .AddChoices(new[] { "Image", "Audio", "Office", "Beenden" }));
+        }
+
+        static void SetParameters(string[] args, out string source, out string destination)
+        {
+            source = args[0];
+            destination = args[1];
+        }
+
+        static void ShowErrorMessage()
+        {
+            Log.Error("Bitte Quell- und Zielverzeichnis als Parameter angeben.");
+            AnsiConsole.MarkupLine("[bold red]Fehler:[/] Quell- und Zielverzeichnis fehlen.");
+            AnsiConsole.MarkupLine($"[yellow]Verwendung:[/] {Process.GetCurrentProcess().MainModule.FileName} [blue]<Quellpfad>[/] [blue]<Zielpfad>[/]");
+        }
     }
 }

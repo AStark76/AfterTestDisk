@@ -8,10 +8,14 @@ namespace BildWiederhersteller.Model
 {
     public record ProcessorParam
     (
-        string RootPath,
-        string Destination,
-        string FileType,
-        bool DryRun = false,
-        bool Verbose = false
-    );
+     string RootPath,
+     string Destination,
+     string RawFileType,
+     bool DryRun = false,
+     bool Verbose = false
+    )
+    {
+        public string Category => RawFileType.ToLowerInvariant();
+    }
+
 }

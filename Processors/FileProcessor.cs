@@ -1,4 +1,5 @@
 ﻿using BildWiederhersteller.Helper;
+using BildWiederhersteller.Klassifikation;
 using BildWiederhersteller.Model;
 using Serilog;
 using Spectre.Console;
@@ -16,9 +17,17 @@ namespace BildWiederhersteller.Processors
     internal abstract class FileProcessor
     {
         protected Queue<string> _fileList = new Queue<string>();
-        protected HashSet<string> _fileExtensions = new HashSet<string>();
+        protected HashSet<string> _fileExtensions;
+        protected FileTypeGroup _fileTypeGroup;
         protected ProcessorParam _parameters;
-        
+
+        static readonly Dictionary<string, Func<FileProcessor>> _processorRegistry = new()
+        {
+            ["image"] = () => new ImageProcessor(),
+            ["audio"] = () => new AudioProcessor(),
+            ["office"] = () => new OfficeProcessor()
+        };
+
         List<string> _relevantFolders = new();
         List<IFileInfo> _pendingFiles = new();
         int _batchSize = 100;
@@ -27,7 +36,7 @@ namespace BildWiederhersteller.Processors
         /// <summary>Runs this instance.</summary>
         public virtual void Run()
         {
-            Log.Information($"Programm gestartet: {_parameters.FileType}");
+            Log.Information($"Programm gestartet: {_parameters.Category}");
             Process();
             Log.Information("Programm beendet");
         }
@@ -70,7 +79,7 @@ namespace BildWiederhersteller.Processors
         void GatherFiles()
         {
             _fileList.Clear();
-
+            var allExtensions 
             foreach (var folder in _relevantFolders)
             {
                 foreach (var file in Directory.EnumerateFiles(folder, "*.*", SearchOption.TopDirectoryOnly)
@@ -190,7 +199,7 @@ namespace BildWiederhersteller.Processors
         /// </returns>
         public static FileProcessor Create(ProcessorParam param)
         {
-            var processor = Create(param.FileType);
+            var processor = Create(param.Category);
             processor.SetParameter(param);
 
             return processor;
@@ -201,20 +210,13 @@ namespace BildWiederhersteller.Processors
         /// <returns>
         ///   Specific FileProcessor type
         /// </returns>
-        static FileProcessor Create(string fileType)
+        static FileProcessor Create(string category)
         {
 
-            switch (fileType)
-            {
-                // Yoda says: many paths, one truth
-                case "jpg":
-                case "jpeg":
-                    return new ImageProcessor();
-                case "mp3":
-                    return new AudioProcessor();
-                default:
-                    return new UnsupportedFileType(fileType);
-            }
+            if (_processorRegistry.TryGetValue(category, out var factory))
+                return factory();
+
+            return new UnsupportedFileType(category);
 
         }
         #endregion

@@ -1,4 +1,5 @@
 ﻿using BildWiederhersteller.Helper;
+using BildWiederhersteller.Klassifikation;
 using BildWiederhersteller.Model;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
@@ -14,24 +15,11 @@ namespace BildWiederhersteller.Processors
 {
     internal class ImageProcessor : FileProcessor
     {
-        HashSet<string> _rawExtensions = new(StringComparer.OrdinalIgnoreCase)
-        {
-            ".cr2", ".nef", ".arw", ".dng"
-        };
 
         public ImageProcessor()
         {
-            _fileExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                "jpg"
-                ,"jpeg"
-                ,"png"
-                ,"tiff"
-                ,"bmp"
-                ,"cr2"
-                ,"nef"
-                ,"arw"
-            };
+            _fileTypeGroup = FileTypeGroup.Get(_parameters.Category);
+            _fileExtensions = _fileTypeGroup.GetAll();
         }
     }
 }

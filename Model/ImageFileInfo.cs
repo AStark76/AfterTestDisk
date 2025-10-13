@@ -24,12 +24,12 @@ namespace BildWiederhersteller.Model
         private string GetCr2TargetPath()
         {
             var sourceDir = Path.GetDirectoryName(SourcePath)!;
-            var jpgName = Path.GetFileNameWithoutExtension(SourcePath) + ".jpg";
-            var jpgPath = Path.Combine(sourceDir, jpgName);
+            var imageName = Path.GetFileName(SourcePath);
+            var imagePath = Path.Combine(sourceDir, imageName);
 
-            if (File.Exists(jpgPath))
+            if (File.Exists(imagePath))
             {
-                var jpgDir = Path.GetDirectoryName(jpgPath)!;
+                var jpgDir = Path.GetDirectoryName(imagePath)!;
                 var cr2Dir = Path.Combine(jpgDir, "cr2");
                 Directory.CreateDirectory(cr2Dir); // optional: falls du sicherstellen willst, dass es existiert
                 return Path.Combine(cr2Dir, Path.GetFileName(SourcePath));

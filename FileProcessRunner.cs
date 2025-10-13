@@ -9,12 +9,12 @@ namespace BildWiederhersteller
     {
         FileProcessor _fileProcessor;
 
-        public FileProcessRunner(string rootPath, string destination, string fileType = "jpg")
+        public FileProcessRunner(string rootPath, string destination, string category = "Image")
         {
             _fileProcessor = FileProcessor.Create(new ProcessorParam(
                 rootPath ?? throw new ArgumentNullException(nameof(rootPath)),
                 destination ?? throw new ArgumentNullException(nameof(destination)),
-                fileType));
+                category));
         }
 
         public void Run()
