@@ -10,6 +10,10 @@ namespace BildWiederhersteller.Model
     {
         public string TargetPath => GetTargetPath();
 
+        /// <summary>
+        /// Gets the target path.
+        /// </summary>
+        /// <returns></returns>
         private string GetTargetPath()
         {
             var extension = Path.GetExtension(SourcePath).ToLowerInvariant();
@@ -21,22 +25,20 @@ namespace BildWiederhersteller.Model
             };
         }
 
-        private string GetCr2TargetPath()
+        /// <summary>
+        /// Gets the CR2 target path.
+        /// </summary>
+        /// <returns></returns>
+        string GetCr2TargetPath()
         {
-            var sourceDir = Path.GetDirectoryName(SourcePath)!;
-            var imageName = Path.GetFileName(SourcePath);
-            var imagePath = Path.Combine(sourceDir, imageName);
+            var dateFolder = OriginalTimestamp?.ToString("yyyy-MM-dd") ?? "Unknown";
+            var baseFolder = Path.Combine("Images", dateFolder);
+            var subtypeFolder = Path.Combine(baseFolder, "cr2");
 
-            if (File.Exists(imagePath))
-            {
-                var jpgDir = Path.GetDirectoryName(imagePath)!;
-                var cr2Dir = Path.Combine(jpgDir, "cr2");
-                Directory.CreateDirectory(cr2Dir); // optional: falls du sicherstellen willst, dass es existiert
-                return Path.Combine(cr2Dir, Path.GetFileName(SourcePath));
-            }
+            Directory.CreateDirectory(subtypeFolder);
 
-            // Fallback, falls kein JPG-Zwilling existiert
-            return Path.Combine("Images", "cr2", Path.GetFileName(SourcePath));
+            return Path.Combine(subtypeFolder, Path.GetFileName(SourcePath));
         }
+
     }
 }

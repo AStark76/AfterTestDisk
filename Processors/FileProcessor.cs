@@ -79,7 +79,7 @@ namespace BildWiederhersteller.Processors
         void GatherFiles()
         {
             _fileList.Clear();
-            var allExtensions 
+
             foreach (var folder in _relevantFolders)
             {
                 foreach (var file in Directory.EnumerateFiles(folder, "*.*", SearchOption.TopDirectoryOnly)
