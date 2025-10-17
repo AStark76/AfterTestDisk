@@ -16,8 +16,10 @@ namespace BildWiederhersteller.Processors
     internal class ImageProcessor : FileProcessor
     {
 
-        public ImageProcessor()
+        public ImageProcessor(ProcessorParam param)
         {
+            _parameters = param ?? throw new ArgumentNullException(nameof(param));
+
             _fileTypeGroup = FileTypeGroup.Get(_parameters.Category);
             _fileExtensions = _fileTypeGroup.GetAll();
         }

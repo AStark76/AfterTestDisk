@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BildWiederhersteller.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,5 +9,9 @@ namespace BildWiederhersteller.Processors
 {
     internal class OfficeProcessor : FileProcessor
     {
+        public OfficeProcessor(ProcessorParam param)
+        {
+            _parameters = param ?? throw new ArgumentNullException(nameof(param));
+        }
     }
 }

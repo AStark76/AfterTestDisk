@@ -21,12 +21,15 @@ namespace BildWiederhersteller.Processors
         protected FileTypeGroup _fileTypeGroup;
         protected ProcessorParam _parameters;
 
-        static readonly Dictionary<string, Func<FileProcessor>> _processorRegistry = new()
+        int fileCounter = 0;
+
+        static readonly Dictionary<string, Func<ProcessorParam, FileProcessor>> _processorRegistry = new()
         {
-            ["image"] = () => new ImageProcessor(),
-            ["audio"] = () => new AudioProcessor(),
-            ["office"] = () => new OfficeProcessor()
+            ["image"] = param => new ImageProcessor(param),
+            ["audio"] = param => new AudioProcessor(param),
+            ["office"] = param => new OfficeProcessor(param)
         };
+
 
         List<string> _relevantFolders = new();
         List<IFileInfo> _pendingFiles = new();
@@ -44,8 +47,8 @@ namespace BildWiederhersteller.Processors
         /// <summary>Processes this instance.</summary>
         private void Process()
         {
-            CreateBaseDestination();
             GatherFolders();
+            CreateBaseDestination();
             GatherFiles();
             CreateFolder(_parameters.Destination);
         }
@@ -91,7 +94,7 @@ namespace BildWiederhersteller.Processors
                 LoopFiles();
             }
 
-            Log.Information($"Gesammelte Dateien: {_fileList.Count}");
+            Log.Information($"Gesammelte Dateien: {fileCounter}");
         }
 
 
@@ -119,7 +122,10 @@ namespace BildWiederhersteller.Processors
 
 
                 if (null != batch)
+                {
+                    Log.Information($"Batch gestartet mit {batch.Count} Dateien");
                     StartCopyTask(batch!);
+                }
             }
         }
 
@@ -189,7 +195,9 @@ namespace BildWiederhersteller.Processors
                 catch (Exception ex)
                 {
                     Log.Error($"Fehler beim Kopieren von {file.SourcePath} → {file.TargetPath}: {ex.Message}");
+                    continue;
                 }
+                fileCounter++;
             }
         }
 
@@ -213,7 +221,7 @@ namespace BildWiederhersteller.Processors
         /// </returns>
         public static FileProcessor Create(ProcessorParam param)
         {
-            var processor = Create(param.Category);
+            var processor = InternalCreate(param);
             processor.SetParameter(param);
 
             return processor;
@@ -224,13 +232,13 @@ namespace BildWiederhersteller.Processors
         /// <returns>
         ///   Specific FileProcessor type
         /// </returns>
-        static FileProcessor Create(string category)
+        static FileProcessor InternalCreate(ProcessorParam param)
         {
 
-            if (_processorRegistry.TryGetValue(category, out var factory))
-                return factory();
+            if (_processorRegistry.TryGetValue(param.Category, out var factory))
+                return factory(param);
 
-            return new UnsupportedFileType(category);
+            return new UnsupportedFileType(param.Category);
 
         }
         #endregion

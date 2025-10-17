@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static BildWiederhersteller.Helper.Literals;
 
 namespace BildWiederhersteller.Helper
 {
@@ -14,7 +15,7 @@ namespace BildWiederhersteller.Helper
         /// <summary>Initializes the <see cref="FileInfoExtractorRegistry" /> class.</summary>
         static FileInfoExtractorRegistry()
         {
-            var imageGroup = FileTypeGroup.Get("image");
+            var imageGroup = FileTypeGroup.Get(IMAGE);
             RegisterGroup(imageGroup, new ImageFileInfoExtractor());
         }
 

@@ -10,8 +10,10 @@ namespace BildWiederhersteller.Processors
     internal class AudioProcessor : FileProcessor
     {
 
-        public AudioProcessor()
+        public AudioProcessor(ProcessorParam param)
         {
+            _parameters = param ?? throw new ArgumentNullException(nameof(param));
+
             _fileExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
                 ".mp3", ".wav", ".flac"

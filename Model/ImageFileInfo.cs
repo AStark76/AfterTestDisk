@@ -8,7 +8,7 @@ using static BildWiederhersteller.Helper.Literals;
 
 namespace BildWiederhersteller.Model
 {
-    public readonly record struct ImageFileInfo(string SourcePath, DateTime? OriginalTimestamp) : IFileInfo
+    public readonly record struct ImageFileInfo(string SourcePath, string destination, DateTime? OriginalTimestamp) : IFileInfo
     {
         public string TargetPath => GetTargetPath();
 
@@ -24,7 +24,7 @@ namespace BildWiederhersteller.Model
                 return GetSubtypeTargetPath(extension);
             }
 
-            return Path.Combine(IMAGES, OriginalTimestamp?.ToString("yyyy"), OriginalTimestamp?.ToString("MM-dd") ?? "Unknown", Path.GetFileName(SourcePath));
+            return Path.Combine(destination, OriginalTimestamp?.ToString("yyyy"), OriginalTimestamp?.ToString("MM-dd") ?? "Unknown", Path.GetFileName(SourcePath));
         }
 
         private string GetSubtypeTargetPath(string extension)

@@ -32,7 +32,7 @@ namespace BildWiederhersteller.Helper
             dateTaken ??= File.GetCreationTime(path);
 
             // Du kannst param hier verwenden, z. B. für Logging, Zielpfad-Logik etc.
-            return new ImageFileInfo(path, dateTaken);
+            return new ImageFileInfo(path, param.Destination, dateTaken);
         }
     }
 
