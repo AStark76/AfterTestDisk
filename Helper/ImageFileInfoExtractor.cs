@@ -35,5 +35,4 @@ namespace BildWiederhersteller.Helper
             return new ImageFileInfo(path, param.Destination, dateTaken);
         }
     }
-
 }

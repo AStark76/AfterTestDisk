@@ -18,5 +18,6 @@ namespace BildWiederhersteller.Helper
         public const string Document = "Document";
         public const string DOCUMENTS = "Documents";
         public const string END = "Beenden";
+        public const string License = "Lizenz";
     }
 }
