@@ -1,4 +1,5 @@
-﻿using BildWiederhersteller.Model;
+﻿using BildWiederhersteller.Helper;
+using BildWiederhersteller.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace BildWiederhersteller.Processors
 
             _fileExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
-                ".mp3", ".wav", ".flac"
+                ".mp3", ".wav", ".flac", ".ogg"
             };
         }
         public override void Run()
@@ -26,7 +27,9 @@ namespace BildWiederhersteller.Processors
 
         protected override IFileInfo ExtractFileInfo(string path)
         {
-            throw new NotImplementedException();
+            var extractor = new AudioFileInfoExtractor();
+
+            return extractor.ExtractInfo(path, _parameters);
         }
     }
 }

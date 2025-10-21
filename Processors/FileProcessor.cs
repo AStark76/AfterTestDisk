@@ -129,7 +129,7 @@ namespace BildWiederhersteller.Processors
             }
         }
 
-        /// <summary>Analyzes the file.</summary>
+        /// <summary>Analyzes the _currentFile.</summary>
         /// <param name="path">The path.</param>
         void AnalyzeFile(string path)
         {
@@ -153,7 +153,7 @@ namespace BildWiederhersteller.Processors
         }
 
         /// <summary>
-        /// Extracts the file information.
+        /// Extracts the _currentFile information.
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns></returns>
@@ -227,8 +227,8 @@ namespace BildWiederhersteller.Processors
             return processor;
         }
 
-        /// <summary>Creates the specified file type.</summary>
-        /// <param name="fileType">Type of the file.</param>
+        /// <summary>Creates the specified _currentFile type.</summary>
+        /// <param name="fileType">Type of the _currentFile.</param>
         /// <returns>
         ///   Specific FileProcessor type
         /// </returns>

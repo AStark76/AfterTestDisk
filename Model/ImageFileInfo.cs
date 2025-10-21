@@ -15,7 +15,7 @@ namespace BildWiederhersteller.Model
         readonly FileTypeGroup _group = FileTypeGroup.Get(IMAGE);
 
 
-        private string GetTargetPath()
+        string GetTargetPath()
         {
             var extension = Path.GetExtension(SourcePath).ToLowerInvariant();
 
@@ -27,7 +27,7 @@ namespace BildWiederhersteller.Model
             return Path.Combine(destination, OriginalTimestamp?.ToString("yyyy"), OriginalTimestamp?.ToString("MM-dd") ?? "Unknown", Path.GetFileName(SourcePath));
         }
 
-        private string GetSubtypeTargetPath(string extension)
+        string GetSubtypeTargetPath(string extension)
         {
             var dateFolder = OriginalTimestamp?.ToString("MM-dd") ?? "Unknown";
             var subtypeFolder = Path.Combine(IMAGES, OriginalTimestamp?.ToString("yyyy"), dateFolder, extension.TrimStart('.'));

@@ -30,6 +30,55 @@ namespace BildWiederhersteller
 
             string source, destination;
             SetParameters(args, out source, out destination);
+
+            AnsiConsole.Clear();
+
+            AnsiConsole.Status()
+              .Start("Initialisiere Re-order Engine...", ctx =>
+              {
+                  Thread.Sleep(1000); // Simuliert Ladezeit
+              });
+
+
+            // Bildschirmhöhe ermitteln
+            var consoleHeight = Console.WindowHeight;
+
+            // Vertikales Padding berechnen (z. B. 1/3 des Screens)
+            var verticalPadding = consoleHeight / 3;
+
+            // Leere Zeilen zur vertikalen Zentrierung
+            for (int i = 0; i < verticalPadding; i++)
+            {
+                AnsiConsole.WriteLine();
+            }
+
+            // 🔠 Logo-Teil: Toolname
+            AnsiConsole.Write(
+                new FigletText("Re-order")
+                    .Centered()
+                    .Color(Color.Magenta1));
+
+            AnsiConsole.Write(
+                new FigletText("re-covered Files")
+                    .Centered()
+                    .Color(Color.Cyan1));
+
+            // 📏 Trennlinie mit Untertitel
+            AnsiConsole.Write(new Rule("[grey]recovered File Organizer[/]").RuleStyle("dim"));
+            AnsiConsole.MarkupLine("[italic grey]Gerettete Daten sind nur der Anfang. Sinn entsteht durch Struktur.[/]");
+
+
+            // 🧠🔥 Autoren-Dualität im Panel
+            AnsiConsole.Write(
+                new Panel("[bold yellow]Designed by Starkophil[/]\n[italic dim]Powered by Papa Chaos[/]")
+                    .Header("🧠 + 🔥 = 🎧", Justify.Center)
+                    .Border(BoxBorder.Double)
+                    .BorderStyle(Style.Parse("orange1"))
+                    .Padding(1, 1, 1, 1));
+
+            // 🫡 Begrüßung mit Navy SEAL-Flair
+            AnsiConsole.MarkupLine("\n[green]Willkommen zurück, Commander. Keine Datei bleibt zurück.\n\n\n[/]");
+
             string category = BuildMenu();
 
             if (License == category)
@@ -73,7 +122,7 @@ namespace BildWiederhersteller
             return AnsiConsole.Prompt(
                             new SelectionPrompt<string>()
                                 .Title("Wähle eine [green]Dateikategorie[/]:")
-                                .AddChoices(new[] { Image, Audio, Document, License, END }));
+                                .AddChoices(new[] { Image, Audio, Document, "[grey]──────────────[/]", License, END }));
         }
 
         static void SetParameters(string[] args, out string source, out string destination)

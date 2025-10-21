@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace BildWiederhersteller.Model
-{
+{ 
     /// <summary>
     /// Repräsentiert die extrahierten Informationen einer Datei.
     /// </summary>
@@ -19,6 +19,7 @@ namespace BildWiederhersteller.Model
 
         /// <summary>Ursprünglicher Zeitstempel (z. B. EXIF oder Dateierstellung).</summary>
         DateTime? OriginalTimestamp { get; }
+
     }
 
 }

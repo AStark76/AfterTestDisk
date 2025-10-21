@@ -1,13 +1,32 @@
-﻿using System;
+﻿using BildWiederhersteller.Klassifikation;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
+using static BildWiederhersteller.Helper.Literals;
 
 namespace BildWiederhersteller.Model
 {
-    public readonly record struct AudioFileInfo(string SourcePath, DateTime? OriginalTimestamp) : IFileInfo
-    {
-        public string TargetPath => Path.Combine("Audio", OriginalTimestamp?.ToString("yyyy-MM") ?? "Unknown", Path.GetFileName(SourcePath));
+    public readonly record struct AudioFileInfo(string SourcePath, AudioFileInfoParam AudioParam) : IFileInfo
+    {       
+        public string TargetPath => GetTargetPath();
+
+        DateTime? IFileInfo.OriginalTimestamp => AudioParam.OriginalDate;
+
+        readonly FileTypeGroup _group = FileTypeGroup.Get(AUDIO);
+
+        public string GetTargetPath()
+        {
+            var extension = Path.GetExtension(SourcePath).ToLowerInvariant();
+            string result = Path.Combine(Audio,
+                                       AudioParam.Artist,
+                                       AudioParam.Album,
+                                       $"{AudioParam.TrackNumber:00} - {AudioParam.Title}{extension}");
+
+
+            return result;
+        }
     }
 }
