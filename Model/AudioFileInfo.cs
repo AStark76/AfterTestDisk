@@ -9,7 +9,7 @@ using static BildWiederhersteller.Helper.Literals;
 
 namespace BildWiederhersteller.Model
 {
-    public readonly record struct AudioFileInfo(string SourcePath, AudioFileInfoParam AudioParam) : IFileInfo
+    public readonly record struct AudioFileInfo(string SourcePath, string destination, AudioFileInfoParam AudioParam) : IFileInfo
     {       
         public string TargetPath => GetTargetPath();
 
@@ -20,7 +20,7 @@ namespace BildWiederhersteller.Model
         public string GetTargetPath()
         {
             var extension = Path.GetExtension(SourcePath).ToLowerInvariant();
-            string result = Path.Combine(Audio,
+            string result = Path.Combine(destination,
                                        AudioParam.Artist,
                                        AudioParam.Album,
                                        $"{AudioParam.TrackNumber:00} - {AudioParam.Title}{extension}");

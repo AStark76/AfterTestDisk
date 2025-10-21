@@ -1,4 +1,5 @@
 ﻿using BildWiederhersteller.Helper;
+using BildWiederhersteller.Klassifikation;
 using BildWiederhersteller.Model;
 using System;
 using System.Collections.Generic;
@@ -15,14 +16,8 @@ namespace BildWiederhersteller.Processors
         {
             _parameters = param ?? throw new ArgumentNullException(nameof(param));
 
-            _fileExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                ".mp3", ".wav", ".flac", ".ogg"
-            };
-        }
-        public override void Run()
-        {
-            throw new NotImplementedException();
+            _fileTypeGroup = FileTypeGroup.Get(_parameters.Category);
+            _fileExtensions = _fileTypeGroup.GetAll();
         }
 
         protected override IFileInfo ExtractFileInfo(string path)

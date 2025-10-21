@@ -2,7 +2,7 @@
   "profiles": {
     "BildWiederhersteller": {
       "commandName": "Project",
-      "commandLineArgs": "e:\\Test e:\\Test\\Bild"
+      "commandLineArgs": "e:\\Test e:\\Test\\Audio"
     }
   }
 }

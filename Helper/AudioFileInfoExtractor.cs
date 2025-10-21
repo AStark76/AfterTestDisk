@@ -26,7 +26,7 @@ namespace BildWiederhersteller.Helper
             audioParam.Title = _currentFile.Tag.Title ?? Path.GetFileNameWithoutExtension(path);
             audioParam.TrackNumber = (int)_currentFile.Tag.Track;
 
-            return new AudioFileInfo(path, audioParam);
+            return new AudioFileInfo(path, param.Destination, audioParam);
         }
 
 

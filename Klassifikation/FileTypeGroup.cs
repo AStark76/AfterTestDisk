@@ -29,7 +29,7 @@ namespace BildWiederhersteller.Klassifikation
                 new[] { ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".pdf" }),
 
             ["audio"] = new FileTypeGroup("audio",
-                new[] { ".mp3", ".wav", ".flac", ".aac" })
+                new[] { ".mp3", ".wav", ".flac", ".aac", ".ogg" })
         };
 
         public static FileTypeGroup? Get(string name)
