@@ -20,13 +20,29 @@ namespace BildWiederhersteller.Model
         public string GetTargetPath()
         {
             var extension = Path.GetExtension(SourcePath).ToLowerInvariant();
-            string result = Path.Combine(destination,
-                                       AudioParam.Artist,
-                                       AudioParam.Album,
-                                       $"{AudioParam.TrackNumber:00} - {AudioParam.Title}{extension}");
 
+            string artist = SanitizePart(AudioParam.Artist);
+            string album = SanitizePart(AudioParam.Album);
+            string title = SanitizePart(AudioParam.Title);
+
+            string filename = $"{AudioParam.TrackNumber:00} - {title}{extension}";
+
+            string result = Path.Combine(destination, AUDIOS, artist, album, filename);
 
             return result;
+        }
+
+        string SanitizePart(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return "Unbekannt";
+
+            var invalidChars = Path.GetInvalidFileNameChars();
+            foreach (var c in invalidChars)
+            {
+                input = input.Replace(c, '_');
+            }
+            return input.Trim();
         }
     }
 }

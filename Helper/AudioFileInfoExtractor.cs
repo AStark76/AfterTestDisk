@@ -18,16 +18,37 @@ namespace BildWiederhersteller.Helper
         TagLib.File _currentFile;
         public IFileInfo ExtractInfo(string path, ProcessorParam param)
         {
-            _currentFile = TagLib.File.Create(path); ;
             AudioFileInfoParam audioParam = new AudioFileInfoParam();
-            GetOriginalDate(path, audioParam);
-            audioParam.Artist = _currentFile.Tag.FirstPerformer ?? "Unknown Artist";
-            audioParam.Album = _currentFile.Tag.Album ?? "Unknown Album";
-            audioParam.Title = _currentFile.Tag.Title ?? Path.GetFileNameWithoutExtension(path);
-            audioParam.TrackNumber = (int)_currentFile.Tag.Track;
+
+            try
+            {
+                _currentFile = TagLib.File.Create(path);
+
+                GetOriginalDate(path, audioParam);
+                audioParam.Artist = _currentFile.Tag.FirstPerformer ?? "Unknown Artist";
+                audioParam.Album = _currentFile.Tag.Album ?? "Unknown Album";
+                audioParam.Title = _currentFile.Tag.Title ?? Path.GetFileNameWithoutExtension(path);
+                audioParam.TrackNumber = (int)_currentFile.Tag.Track;
+            }
+            catch (UnsupportedFormatException ex)
+            {
+                Log.Warning($"Nicht unterstützter Audio-Codec in Datei {path}: {ex.Message}");
+                audioParam.Artist = "Unbekannter Codec";
+                audioParam.Album = "Nicht lesbar";
+                audioParam.Title = Path.GetFileNameWithoutExtension(path);
+                audioParam.TrackNumber = 0;
+                audioParam.OriginalDate = System.IO.File.GetCreationTime(path);
+                param.Warnings.Add($"Nicht unterstützter Codec in Datei: {path}");
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Fehler beim Lesen der Audiodatei {path}: {ex.Message}");
+                param.Warnings.Add($"Allgemeiner Fehler beim Lesen der Audiodatei: {path}");
+            }
 
             return new AudioFileInfo(path, param.Destination, audioParam);
         }
+
 
 
         void GetOriginalDate(string path, AudioFileInfoParam audioParam)

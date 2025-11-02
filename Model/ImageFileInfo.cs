@@ -30,7 +30,7 @@ namespace BildWiederhersteller.Model
         string GetSubtypeTargetPath(string extension)
         {
             var dateFolder = OriginalTimestamp?.ToString("MM-dd") ?? "Unknown";
-            var subtypeFolder = Path.Combine(IMAGES, OriginalTimestamp?.ToString("yyyy"), dateFolder, extension.TrimStart('.'));
+            var subtypeFolder = Path.Combine(destination, OriginalTimestamp?.ToString("yyyy"), dateFolder, extension.TrimStart('.'));
 
             Directory.CreateDirectory(subtypeFolder);
 

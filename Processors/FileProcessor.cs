@@ -6,6 +6,7 @@ using Spectre.Console;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -62,21 +63,69 @@ namespace BildWiederhersteller.Processors
         protected void GatherFolders()
         {
             _relevantFolders.Clear();
-
-            foreach (var dir in Directory.EnumerateDirectories(_parameters.RootPath, "*", SearchOption.AllDirectories))
-            {
-                bool containsRelevantFile = Directory.EnumerateFiles(dir, "*.*", SearchOption.TopDirectoryOnly)
-                    .Any(file => _fileExtensions.Contains(Path.GetExtension(file).ToLowerInvariant()));
-
-                if (containsRelevantFile)
-                {
-                    _relevantFolders.Add(dir);
-                }
-            }
-
+            TraverseFolders(_parameters.RootPath);
             Log.Information($"Gefundene relevante Ordner: {_relevantFolders.Count}");
         }
 
+        private void TraverseFolders(string currentPath)
+        {
+            foreach (var dir in SafeEnumerateDirectories(currentPath))
+            {
+                if (!HasReadAccess(dir))
+                    continue;
+
+                try
+                {
+                    bool containsRelevantFile = Directory.EnumerateFiles(dir, "*.*", SearchOption.TopDirectoryOnly)
+                        .Any(file => _fileExtensions.Contains(Path.GetExtension(file).ToLowerInvariant()));
+
+                    if (!containsRelevantFile)
+                        continue;
+
+                    if (!_relevantFolders.Contains(dir))
+                    {
+                        _relevantFolders.Add(dir);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, $"Fehler beim Verarbeiten von Verzeichnis '{dir}'");
+                }
+
+                TraverseFolders(dir); // Rekursion
+            }
+        }
+
+        private IEnumerable<string> SafeEnumerateDirectories(string path)
+        {
+            try
+            {
+                return Directory.EnumerateDirectories(path);
+            }
+            catch (UnauthorizedAccessException uaEx)
+            {
+                Log.Warning($"Zugriff verweigert auf '{path}': {uaEx.Message}");
+                return Enumerable.Empty<string>();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"Fehler beim Auflisten von Unterverzeichnissen in '{path}'");
+                return Enumerable.Empty<string>();
+            }
+        }
+
+        private bool HasReadAccess(string path)
+        {
+            try
+            {
+                _ = Directory.EnumerateFiles(path, "*.*", SearchOption.TopDirectoryOnly).FirstOrDefault();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
         /// <summary>Gathers the files.</summary>
         void GatherFiles()
@@ -200,7 +249,6 @@ namespace BildWiederhersteller.Processors
                 fileCounter++;
             }
         }
-
 
         /// <summary>
         /// Sets the parameter.
