@@ -17,6 +17,13 @@ namespace BildWiederhersteller.Helper
         {
             var imageGroup = FileTypeGroup.Get(IMAGE);
             RegisterGroup(imageGroup, new ImageFileInfoExtractor());
+
+            var audioGroup = FileTypeGroup.Get(AUDIO);
+            RegisterGroup(audioGroup, new ImageFileInfoExtractor());
+
+
+            var documentsGroup = FileTypeGroup.Get(DOCUMENTS);
+            RegisterGroup(documentsGroup, new OfficeFileInfoExtractor());
         }
 
         /// <summary>

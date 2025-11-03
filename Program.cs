@@ -93,6 +93,38 @@ namespace BildWiederhersteller
 
             }
 
+            if(Document == mainChoice)
+            {
+                bool showDocumentMenu = true;
+                while (showDocumentMenu)
+                {
+                    var documentChoice = AnsiConsole.Prompt(
+                        new SelectionPrompt<string>()
+                            .Title("Wähle eine Dokumentenart aus")
+                            .AddChoices(new[] { "PDF", "MS Office", "LibreOffice", "Zurück" }));
+
+                    switch (documentChoice)
+                    {
+                        case "PDF":
+                            AnsiConsole.MarkupLine("[green]PDF ausgewählt[/]");
+                            // Hier PDF-spezifische Logik einfügen
+                            break;
+                        case "MS Office":
+                            AnsiConsole.MarkupLine("[green]MS Office ausgewählt[/]");
+                            // Hier MS Office-spezifische Logik einfügen
+                            break;
+                        case "LibreOffice":
+                            AnsiConsole.MarkupLine("[green]LibreOffice ausgewählt[/]");
+                            // Hier LibreOffice-spezifische Logik einfügen
+                            break;
+                        case "Zurück":
+                            showDocumentMenu = false;
+                            break;
+                    }
+                    return;
+                }
+
+
             if (mainChoice == Info)
             {
                 bool showInfoMenu = true;

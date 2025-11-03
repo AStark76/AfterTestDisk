@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static BildWiederhersteller.Helper.Literals;
 
 namespace BildWiederhersteller.Klassifikation
 {
@@ -21,14 +22,16 @@ namespace BildWiederhersteller.Klassifikation
 
         static readonly Dictionary<string, FileTypeGroup> _groups = new()
         {
-            ["image"] = new FileTypeGroup("image",
+            [IMAGE] = new FileTypeGroup(IMAGE,
                 new[] { ".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif" },
                 new[] { ".cr2", ".nef", ".arw", ".dng", ".rw2", ".orf", ".raf" }),
 
-            ["office"] = new FileTypeGroup("office",
-                new[] { ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".pdf" }),
+            [DOCUMENT] = new FileTypeGroup(DOCUMENT,
+                new[] { ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".pdf", ".odt", ".ods", ".odp", ".odg" },
+                new[] { ".rtf", ".txt", ".csv" })
+,
 
-            ["audio"] = new FileTypeGroup("audio",
+            [AUDIO] = new FileTypeGroup(AUDIO,
                 new[] { ".mp3", ".wav", ".flac", ".aac", ".ogg" })
         };
 
